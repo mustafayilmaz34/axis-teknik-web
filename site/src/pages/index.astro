@@ -5,6 +5,7 @@ import CtaBand from '../components/CtaBand.astro';
 import { company, services, references } from '../data/site';
 import HeroSlider from '../components/HeroSlider.astro';
 import FeaturedProjects from '../components/FeaturedProjects.astro';
+import MissionVision from '../components/MissionVision.astro';
 const featured = references.filter((r) => r.featured);
 const years = new Date().getFullYear() - company.founded;
 ---
@@ -53,6 +54,7 @@ const years = new Date().getFullYear() - company.founded;
       </div>
       <div class="text-lg text-slate-700">
         <p>Axis Teknik 2010 yılında kuruldu. "Öncelik kalite ve müşteri memnuniyetidir" ilkesiyle çalışıyoruz. Projelendirmeden devreye almaya ve periyodik bakıma kadar işin her aşamasında yanınızdayız.</p>
+        <div class="mt-8"><MissionVision variant="compact" /></div>
         <a href="/hakkimizda/" class="mt-6 inline-flex items-center gap-1 font-semibold text-brand-700">Hakkımızda <Icon name="arrow" class="size-4" /></a>
       </div>
     </div>

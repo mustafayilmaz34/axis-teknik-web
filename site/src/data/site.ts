@@ -5,6 +5,9 @@ export const company = {
   name: 'Axis Teknik',
   tagline: 'Elektrik–Mekanik Taahhüt ve Yangın Sistemleri',
   // Logodaki alt yazı; header'da okunur metin olarak gösterilir (logo-mark.png bu satır olmadan kırpıldı)
+  // Misyon/vizyon: eski site metninden hizmet odaklı uyarlandı, müşteri onayı bekliyor (acik-sorular B1)
+  mission: 'Elektrik, mekanik ve yangın güvenliği alanlarında can ve mal güvenliğini koruyan sistemler tasarlamak, kurmak ve bakımını yapmak.',
+  vision: "Türkiye, Avrupa ve Orta Doğu'da, sunduğu teknoloji ve hizmetle tercih edilen bir kuruluş olmak.",
   logoTagline: ['Elektrik Elektronik Yangın Algılama ve', 'Mekanik Yangın Söndürme Sistemleri'],
   founded: 2010,
   address: 'Velibaba Mah. Mimar Sinan Cad. San. Sit. B1 No:15/5-8 Pendik / İstanbul',
