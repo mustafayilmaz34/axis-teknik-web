@@ -17,7 +17,7 @@ const slides = services
 <section class="hero-slider relative isolate overflow-hidden bg-brand-950 text-white" aria-roledescription="carousel" aria-label="Hizmetlerimiz">
   <h1 class="sr-only">{company.name}: Elektrik–Mekanik Taahhüt ve Yangın Sistemleri</h1>
 
-  <div class="relative min-h-[34rem] sm:min-h-[38rem] lg:min-h-[42rem]">
+  <div class="slider-stage relative">
     {slides.map((s, i) => (
       <div
         class="slide absolute inset-0 flex cursor-pointer items-end sm:items-center"
@@ -59,13 +59,13 @@ const slides = services
     ))}
   </div>
 
-  <div class="absolute inset-x-0 bottom-0 z-10">
-    <div class="container-x flex items-center gap-3 pb-6 md:pr-48">
+  <div class="slider-controls absolute inset-x-0 bottom-0 z-10">
+    <div class="container-x flex items-center gap-3 pb-6 max-md:pr-20 md:pr-48">
       <ol class="grid flex-1 grid-cols-4 gap-2 sm:gap-4">
         {slides.map((s, i) => (
           <li>
             <button type="button" class="slider-tab group block w-full text-left" data-index={i} aria-label={`${i + 1}. slayt: ${s.title}`} aria-current={i === 0 ? 'true' : undefined}>
-              <span class="block h-1 overflow-hidden rounded-full bg-white/25"><span class="tab-progress block h-full w-0 bg-accent-500"></span></span>
+              <span class="block h-1.5 overflow-hidden rounded-full bg-white/30"><span class="tab-progress block h-full origin-left rounded-full bg-accent-500" style="transform: scaleX(0)"></span></span>
               <span class="mt-2 hidden truncate text-sm font-semibold text-white/70 group-hover:text-white group-aria-[current=true]:text-white md:block">{s.title}</span>
             </button>
           </li>
@@ -76,6 +76,10 @@ const slides = services
 </section>
 
 <style>
+  /* Slider ekrana sığar: sayfa en üstteyken alttaki ilerleme çubukları görünür.
+     Mobil: üst bar 5rem + alt eylem çubuğu 4.5rem; masaüstü: ince üst şerit 2.5rem + üst bar 6rem */
+  .slider-stage { height: clamp(32rem, calc(100svh - 9.5rem), 44rem); }
+  @media (min-width: 768px) { .slider-stage { height: clamp(32rem, calc(100svh - 8.5rem), 46rem); } }
   .slide { opacity: 0; transition: opacity 0.9s ease; }
   .slide[data-active] { opacity: 1; z-index: 1; }
   .slide-media img { transform: scale(1.08); transition: transform 5s ease-out; }
@@ -85,11 +89,10 @@ const slides = services
   .slide[data-active] .slide-copy > :nth-child(2) { transition-delay: 0.1s; }
   .slide[data-active] .slide-copy > :nth-child(3) { transition-delay: 0.2s; }
   .slide[data-active] .slide-copy > :nth-child(4) { transition-delay: 0.3s; }
-  .slider-tab[aria-current='true'] .tab-progress { width: 100%; transition: width var(--slide-ms, 5000ms) linear; }
-  .hero-slider[data-paused] .slider-tab[aria-current='true'] .tab-progress { transition: none; }
+  /* ilerleme çubuğu genişliği JS ile (transform: scaleX) saniye saniye güncellenir */
+  .tab-progress { will-change: transform; transition: transform 60ms linear; }
   @media (prefers-reduced-motion: reduce) {
     .slide, .slide-media img, .slide-copy > * { transition: none !important; transform: none !important; }
-    .slider-tab[aria-current='true'] .tab-progress { transition: none; }
   }
 </style>
 
@@ -101,34 +104,46 @@ const slides = services
     const DURATION = 5000;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let current = 0;
-    let timer: number | undefined;
+    let elapsed = 0; // aktif slaytta geçen süre (ms)
+    let last = 0;
     const userPaused = reduced; // hareket azaltılmışsa otomatik geçiş kapalı
     let hoverPaused = false;
+    const bars = tabs.map((t) => t.querySelector<HTMLElement>('.tab-progress')!);
 
-    root.style.setProperty('--slide-ms', `${DURATION}ms`);
+    // Çubukları çiz: geçmiş slaytlar dolu, aktif olan geçen süre kadar, sonrakiler boş
+    const paint = () => {
+      bars.forEach((b, i) => {
+        const v = i < current ? 1 : i > current ? 0 : userPaused ? 1 : Math.min(elapsed / DURATION, 1);
+        b.style.transform = `scaleX(${v})`;
+      });
+    };
 
     const show = (next: number) => {
       current = (next + slides.length) % slides.length;
+      elapsed = 0;
       slides.forEach((s, i) => {
         const on = i === current;
         s.toggleAttribute('data-active', on);
         s.toggleAttribute('inert', !on);
         if (on) s.removeAttribute('aria-hidden'); else s.setAttribute('aria-hidden', 'true');
       });
-      tabs.forEach((t, i) => {
-        // ilerleme çubuğu animasyonunu yeniden başlat
-        t.removeAttribute('aria-current');
-        if (i === current) { void t.offsetWidth; t.setAttribute('aria-current', 'true'); }
-      });
-      schedule();
+      tabs.forEach((t, i) => { if (i === current) t.setAttribute('aria-current', 'true'); else t.removeAttribute('aria-current'); });
+      paint();
     };
 
-    const schedule = () => {
-      window.clearTimeout(timer);
-      const paused = userPaused || hoverPaused;
+    // Zamanlayıcı: 50 ms'de bir geçen süreyi ekler; duraklatılınca çubuk olduğu yerde bekler
+    const tick = () => {
+      const now = performance.now();
+      const dt = last ? Math.min(now - last, 100) : 0;
+      last = now;
+      const paused = userPaused || hoverPaused || document.hidden;
       root.toggleAttribute('data-paused', paused);
-      if (!paused) timer = window.setTimeout(() => show(current + 1), DURATION);
+      if (!paused) {
+        elapsed += dt;
+        if (elapsed >= DURATION) show(current + 1); else paint();
+      }
     };
+    const schedule = () => { last = 0; };
 
     tabs.forEach((t) => t.addEventListener('click', () => show(Number(t.dataset.index))));
     // Fotoğrafa tıklayınca sonraki slayt (bağlantı ve düğmeler hariç)
@@ -137,9 +152,10 @@ const slides = services
       show(current + 1);
     }));
 
-    // Fare üzerindeyken veya klavye odağı içerideyken durakla (WCAG 2.2.2)
-    root.addEventListener('mouseenter', () => { hoverPaused = true; schedule(); });
-    root.addEventListener('mouseleave', () => { hoverPaused = root.contains(document.activeElement); schedule(); });
+    // Fare alttaki sekme çubuğundayken veya klavye odağı içerideyken durakla (WCAG 2.2.2)
+    const controls = root.querySelector<HTMLElement>('.slider-controls')!;
+    controls.addEventListener('mouseenter', () => { hoverPaused = true; schedule(); });
+    controls.addEventListener('mouseleave', () => { hoverPaused = root.contains(document.activeElement); schedule(); });
     root.addEventListener('focusin', () => { hoverPaused = true; schedule(); });
     root.addEventListener('focusout', (e) => { if (!root.contains(e.relatedTarget as Node)) { hoverPaused = false; schedule(); } });
     root.addEventListener('keydown', (e) => {
@@ -155,8 +171,9 @@ const slides = services
       if (Math.abs(dx) > 50) show(current + (dx < 0 ? 1 : -1));
     });
 
-    document.addEventListener('visibilitychange', () => { if (document.hidden) window.clearTimeout(timer); else schedule(); });
+    document.addEventListener('visibilitychange', schedule);
 
     show(0);
+    window.setInterval(tick, 50);
   }
 </script>
