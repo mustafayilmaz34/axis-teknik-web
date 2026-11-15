@@ -31,7 +31,7 @@ const field = 'mt-1 block w-full rounded-lg border border-slate-300 px-4 py-3 fo
         <label class="block">Ad Soyad *<input name="ad" required autocomplete="name" class={field} /></label>
         <label class="block">Firma<input name="firma" autocomplete="organization" class={field} /></label>
         <label class="block">Telefon *<input name="telefon" type="tel" required autocomplete="tel" class={field} /></label>
-        <label class="block">E-posta *<input name="eposta" type="email" required autocomplete="email" class={field} /></label>
+        <label class="block">E-posta *<input name="email" type="email" required autocomplete="email" class={field} /></label>
         <label class="block sm:col-span-2">İlgilendiğiniz hizmet
           <select name="hizmet" class={field}>
             {services.map((s) => <option>{s.title}</option>)}
@@ -40,8 +40,11 @@ const field = 'mt-1 block w-full rounded-lg border border-slate-300 px-4 py-3 fo
         <label class="block sm:col-span-2">Mesajınız *<textarea name="mesaj" rows="5" required class={field}></textarea></label>
         <label class="flex gap-3 text-sm text-slate-600 sm:col-span-2"><input type="checkbox" name="kvkk" required class="mt-1 size-5" />
           <span>Kişisel verilerimin talebime yanıt verilmesi amacıyla işlenmesine ilişkin aydınlatma metnini okudum.</span></label>
-        <div class="sm:col-span-2"><button class="btn-primary w-full sm:w-auto">Gönder</button>
-          <p id="durum" role="status" class="mt-3 text-sm"></p></div>
+        <!-- Formspree: e-posta konusu ve spam tuzağı (insanlar görmez, botlar doldurur) -->
+        <input type="hidden" name="_subject" value="Web sitesi teklif talebi" />
+        <label class="sr-only" aria-hidden="true">Bu alanı boş bırakın<input type="text" name="_gotcha" tabindex="-1" autocomplete="off" /></label>
+        <div class="sm:col-span-2"><button id="gonder" class="btn-primary w-full disabled:cursor-wait disabled:opacity-70 sm:w-auto">Gönder</button>
+          <p id="durum" role="status" class="mt-3 text-sm font-medium empty:hidden"></p></div>
       </form>
     </div>
   </section>
@@ -55,16 +58,37 @@ const field = 'mt-1 block w-full rounded-lg border border-slate-300 px-4 py-3 fo
   const wanted = new URLSearchParams(location.search).get('hizmet');
   const select = form.elements.namedItem('hizmet') as HTMLSelectElement | null;
   if (wanted && select && [...select.options].some((o) => o.value === wanted)) select.value = wanted;
+  const button = document.getElementById('gonder') as HTMLButtonElement;
+  const show = (msg: string, ok: boolean) => {
+    status.textContent = msg;
+    status.classList.toggle('text-green-700', ok);
+    status.classList.toggle('text-red-700', !ok);
+  };
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const data = new FormData(form);
-    if (form.action && form.getAttribute('action')) {
+    data.set('_subject', `Web sitesi teklif talebi – ${data.get('hizmet')} – ${data.get('ad')}`);
+
+    // Formspree (company.formEndpoint) tanımlıysa doğrudan e-posta olarak gönder
+    if (form.getAttribute('action')) {
+      button.disabled = true;
+      button.textContent = 'Gönderiliyor…';
+      status.textContent = '';
       const res = await fetch(form.action, { method: 'POST', body: data, headers: { Accept: 'application/json' } }).catch(() => null);
-      status.textContent = res?.ok ? 'Teşekkürler, mesajınız alındı. En kısa sürede dönüş yapacağız.' : 'Gönderilemedi. Lütfen bizi telefonla arayın.';
-      if (res?.ok) form.reset();
+      button.disabled = false;
+      button.textContent = 'Gönder';
+      if (res?.ok) {
+        form.reset();
+        show('Teşekkürler, mesajınız bize ulaştı. En kısa sürede dönüş yapacağız.', true);
+      } else {
+        show('Mesajınız gönderilemedi. Lütfen tekrar deneyin ya da bizi 0216 307 18 62 numarasından arayın.', false);
+      }
       return;
     }
-    const body = [...data.entries()].filter(([k]) => k !== 'kvkk').map(([k, v]) => `${k}: ${v}`).join('\n');
+
+    // Servis tanımlı değilse ziyaretçinin e-posta uygulamasını aç
+    const body = [...data.entries()].filter(([k]) => k !== 'kvkk' && !k.startsWith('_')).map(([k, v]) => `${k}: ${v}`).join('\n');
     location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent('Teklif talebi - ' + data.get('hizmet'))}&body=${encodeURIComponent(body)}`;
     status.textContent = 'E-posta uygulamanız açıldı; mesajı göndermeyi unutmayın.';
   });

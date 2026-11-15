@@ -4,6 +4,7 @@ import Icon from '../components/Icon.astro';
 import CtaBand from '../components/CtaBand.astro';
 import { company, services, references } from '../data/site';
 import HeroSlider from '../components/HeroSlider.astro';
+import FeaturedProjects from '../components/FeaturedProjects.astro';
 const featured = references.filter((r) => r.featured);
 const years = new Date().getFullYear() - company.founded;
 ---
@@ -41,16 +42,7 @@ const years = new Date().getFullYear() - company.founded;
       </div>
       <a href="/referanslar/" class="btn-secondary">Tüm Referanslar</a>
     </div>
-    <ul class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {featured.map((r) => (
-        <li class="rounded-2xl border border-slate-200 p-6">
-          <p class="text-sm font-semibold text-accent-700">{r.sector}</p>
-          <h3 class="mt-2 text-lg font-bold">{r.title}</h3>
-          <p class="mt-1 text-slate-600">{r.scope}</p>
-          <p class="mt-4 flex items-center gap-1 text-sm text-slate-500"><Icon name="pin" class="size-4" />{r.location}</p>
-        </li>
-      ))}
-    </ul>
+    <div class="mt-10"><FeaturedProjects projects={featured} /></div>
   </section>
 
   <section class="border-t border-slate-200">
