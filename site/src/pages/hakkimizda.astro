@@ -1,0 +1,46 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+import PageHero from '../components/PageHero.astro';
+import CtaBand from '../components/CtaBand.astro';
+const values = ['Müşteri odaklılık', 'Yasalara saygı', 'İnsana saygı', 'Dürüstlük', 'Kalite'];
+const principles = ['Sorunlara hızlı çözüm', 'Uluslararası standartlara uygun ürün ve hizmet', 'Satış sonrası hizmet', 'Sözünde durmak'];
+---
+<Layout title="Hakkımızda" description="Axis Teknik 2010'dan beri elektrik–mekanik taahhüt ve yangın algılama/söndürme sistemlerinde tasarım, uygulama ve bakım hizmeti veriyor.">
+  <PageHero eyebrow="Hakkımızda" title="2010'dan beri güvenilir taahhüt" lead="Endüstriyel tesisler, hastaneler, oteller ve kamu yapıları için elektrik–mekanik taahhüt ile yangın algılama ve söndürme sistemleri alanında çalışan bir mühendislik ve taahhüt firmasıyız. Merkezimiz Pendik, İstanbul'dadır." image="hakkimizda" />
+
+  <section class="container-x grid gap-12 py-16 lg:grid-cols-3">
+    <div class="lg:col-span-2 space-y-10 text-lg text-slate-700">
+      <div>
+        <h2 class="section-title text-ink">Tarihçe</h2>
+        <p class="mt-4">Axis Teknik 2010 yılında kuruldu. O günden bu yana "Öncelik kalite ve müşteri memnuniyetidir" ilkesiyle çalışıyoruz.</p>
+      </div>
+      <div>
+        <h2 class="section-title text-ink">Amacımız</h2>
+        <p class="mt-4">Kararlı, programına bağlı ve sorumluluklarının farkında bir ekibiz. Disiplinli bir çalışma ortamında, güncel teknoloji ve donanımla nitelikli ürün ve hizmet sunarak müşterilerimizin güvenini ve saygısını kazanmayı esas alıyoruz.</p>
+        <p class="mt-4">Yangın algılama ve söndürme sistemleri can ve mal güvenliğini doğrudan ilgilendirir. İnsanların yaşadığı ve çalıştığı her mekânda, kurduğumuz sistemlerin güvenilirliğinin sorumluluğunu taşıyoruz.</p>
+      </div>
+      <div class="grid gap-6 sm:grid-cols-2">
+        <div class="rounded-2xl bg-brand-50 p-6">
+          <h2 class="text-xl font-bold text-ink">Misyonumuz</h2>
+          <p class="mt-3 text-base">Elektrik, mekanik ve yangın güvenliği alanlarında can ve mal güvenliğini koruyan sistemler tasarlamak, kurmak ve bakımını yapmak.</p>
+        </div>
+        <div class="rounded-2xl bg-accent-50 p-6">
+          <h2 class="text-xl font-bold text-ink">Vizyonumuz</h2>
+          <p class="mt-3 text-base">Türkiye, Avrupa ve Orta Doğu'da, sunduğu teknoloji ve hizmetle tercih edilen bir kuruluş olmak.</p>
+        </div>
+      </div>
+    </div>
+    <aside class="space-y-8">
+      <div class="rounded-2xl border border-slate-200 p-6">
+        <h2 class="text-xl font-bold">Değerlerimiz</h2>
+        <ul class="mt-4 space-y-2">{values.map((v) => <li class="flex gap-2"><Icon name="check" class="size-5 text-brand-600" />{v}</li>)}</ul>
+      </div>
+      <div class="rounded-2xl border border-slate-200 p-6">
+        <h2 class="text-xl font-bold">İlkelerimiz</h2>
+        <ul class="mt-4 space-y-2">{principles.map((v) => <li class="flex gap-2"><Icon name="check" class="size-5 shrink-0 text-brand-600" />{v}</li>)}</ul>
+      </div>
+    </aside>
+  </section>
+  <CtaBand />
+</Layout>

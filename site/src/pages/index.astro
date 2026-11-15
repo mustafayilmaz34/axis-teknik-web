@@ -1,0 +1,70 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { company, services, references } from '../data/site';
+import HeroSlider from '../components/HeroSlider.astro';
+const featured = references.filter((r) => r.featured);
+const years = new Date().getFullYear() - company.founded;
+---
+<Layout title={company.name} description="Endüstriyel tesisler, hastaneler, oteller ve kamu yapıları için elektrik–mekanik taahhüt ve yangın algılama/söndürme sistemleri. Pendik, İstanbul.">
+  <HeroSlider />
+
+  <section class="container-x py-20">
+    <h2 class="section-title">Hizmetlerimiz</h2>
+    <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {services.map((s) => (
+        <a href={`/hizmetler/#${s.id}`} class:list={['group flex flex-col rounded-2xl border p-6 transition hover:-translate-y-1 hover:shadow-lg', s.icon === 'fire' ? 'border-accent-300 bg-accent-50' : 'border-slate-200 bg-white']}>
+          <span class:list={['flex size-14 items-center justify-center rounded-2xl text-white shadow-md', s.icon === 'fire' ? 'bg-linear-to-br from-accent-500 to-accent-700 shadow-accent-700/25' : 'bg-linear-to-br from-brand-500 to-brand-800 shadow-brand-900/20']}><Icon name={s.icon} class="size-8" /></span>
+          <h3 class="mt-5 text-xl font-bold">{s.title}</h3>
+          <p class="mt-2 flex-1 text-slate-600">{s.summary}</p>
+          <span class="mt-5 inline-flex items-center gap-1 font-semibold text-brand-700">Ayrıntılar <Icon name="arrow" class="size-4 transition group-hover:translate-x-1" /></span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="bg-brand-50">
+    <div class="container-x grid gap-8 py-14 text-center sm:grid-cols-3">
+      <div><p class="font-heading text-5xl font-bold text-brand-800">{company.founded}</p><p class="mt-1 text-slate-600">Kuruluş yılı</p></div>
+      <div><p class="font-heading text-5xl font-bold text-brand-800">{years}+</p><p class="mt-1 text-slate-600">Yıllık deneyim</p></div>
+      <div><p class="font-heading text-5xl font-bold text-brand-800">{references.length}</p><p class="mt-1 text-slate-600">Referans proje</p></div>
+    </div>
+  </section>
+
+  <section class="container-x py-20">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="eyebrow">Referanslar</p>
+        <h2 class="section-title mt-2">Öne çıkan projeler</h2>
+        <p class="mt-3 max-w-2xl text-slate-600">Sanayi, sağlık, otel ve telekom alanlarında tamamladığımız işlerden bazıları.</p>
+      </div>
+      <a href="/referanslar/" class="btn-secondary">Tüm Referanslar</a>
+    </div>
+    <ul class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {featured.map((r) => (
+        <li class="rounded-2xl border border-slate-200 p-6">
+          <p class="text-sm font-semibold text-accent-700">{r.sector}</p>
+          <h3 class="mt-2 text-lg font-bold">{r.title}</h3>
+          <p class="mt-1 text-slate-600">{r.scope}</p>
+          <p class="mt-4 flex items-center gap-1 text-sm text-slate-500"><Icon name="pin" class="size-4" />{r.location}</p>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="border-t border-slate-200">
+    <div class="container-x grid gap-10 py-20 lg:grid-cols-2">
+      <div>
+        <p class="eyebrow">Hakkımızda</p>
+        <h2 class="section-title mt-2">{company.founded}'dan beri</h2>
+      </div>
+      <div class="text-lg text-slate-700">
+        <p>Axis Teknik 2010 yılında kuruldu. "Öncelik kalite ve müşteri memnuniyetidir" ilkesiyle çalışıyoruz. Projelendirmeden devreye almaya ve periyodik bakıma kadar işin her aşamasında yanınızdayız.</p>
+        <a href="/hakkimizda/" class="mt-6 inline-flex items-center gap-1 font-semibold text-brand-700">Hakkımızda <Icon name="arrow" class="size-4" /></a>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand />
+</Layout>

@@ -1,0 +1,24 @@
+# Bağımlılıklar ve derleme çıktısı
+node_modules/
+dist/
+.astro/
+
+# Ortam değişkenleri / gizli bilgiler
+.env
+.env.*
+!.env.example
+
+# Editör ve yerel araç ayarları
+.idea/
+.vscode/
+.mcp.json
+.claude/settings.local.json
+
+# İşletim sistemi
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Günlükler
+npm-debug.log*
+*.log

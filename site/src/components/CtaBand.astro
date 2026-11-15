@@ -1,0 +1,16 @@
+---
+import { company } from '../data/site';
+import Icon from './Icon.astro';
+---
+<section class="bg-brand-950 text-white">
+  <div class="container-x flex flex-col gap-6 py-14 md:flex-row md:items-center md:justify-between">
+    <div>
+      <h2 class="section-title">Projeniz için teklif alın</h2>
+      <p class="mt-2 text-brand-200">İhtiyacınızı kısaca anlatın, sizi arayalım.</p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <a href="/iletisim/#teklif-formu" class="btn-primary">Teklif Al <Icon name="arrow" class="size-5" /></a>
+      <a href={company.phone.href} class="btn-light"><Icon name="phone" class="size-5" /> {company.phone.label}</a>
+    </div>
+  </div>
+</section>

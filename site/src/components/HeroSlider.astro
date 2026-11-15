@@ -1,0 +1,162 @@
+---
+// Ana sayfa başlık slider'ı: her slayt bir hizmet grubunu tanıtır (sıra: services dizisi).
+// Görseller: public/images/slider/<ad>.webp (masaüstü) ve <ad>-m.webp (mobil); kayıt: docs/gorsel-kayit.md
+import Icon from './Icon.astro';
+import { company, services } from '../data/site';
+
+const slideImages: Record<string, { file: string; alt: string; title?: string }> = {
+  'elektrik-taahhut': { file: 'elektrik', alt: 'Gün batımında yüksek gerilim enerji iletim hattı direkleri' },
+  'mekanik-taahhut': { file: 'mekanik', alt: 'Kesişen bakır tesisat borularının üç boyutlu görseli' },
+  'yangin-sistemleri': { file: 'yangin', alt: 'Karanlıkta yükselen alevler', title: 'Yangın Algılama ve Söndürme Sistemleri' },
+  'tasarim-ve-projelendirme': { file: 'tasarim', alt: 'Mavi zemin üzerinde üç boyutlu tel kafes plan çizimi' },
+};
+const slides = services
+  .filter((s) => slideImages[s.id])
+  .map((s) => ({ ...s, ...slideImages[s.id], title: slideImages[s.id].title ?? s.title }));
+---
+<section class="hero-slider relative isolate overflow-hidden bg-brand-950 text-white" aria-roledescription="carousel" aria-label="Hizmetlerimiz">
+  <h1 class="sr-only">{company.name}: Elektrik–Mekanik Taahhüt ve Yangın Sistemleri</h1>
+
+  <div class="relative min-h-[34rem] sm:min-h-[38rem] lg:min-h-[42rem]">
+    {slides.map((s, i) => (
+      <div
+        class="slide absolute inset-0 flex cursor-pointer items-end sm:items-center"
+        data-active={i === 0 ? '' : undefined}
+        role="group"
+        aria-roledescription="slide"
+        aria-label={`${i + 1} / ${slides.length}: ${s.title}`}
+        aria-hidden={i === 0 ? undefined : 'true'}
+        inert={i === 0 ? undefined : true}
+      >
+        <picture class="slide-media absolute inset-0 -z-10">
+          <source media="(max-width: 640px)" srcset={`/images/slider/${s.file}-m.webp`} />
+          <img
+            src={`/images/slider/${s.file}.webp`}
+            alt={s.alt}
+            width="1920"
+            height="1080"
+            class="size-full object-cover"
+            loading={i === 0 ? 'eager' : 'lazy'}
+            fetchpriority={i === 0 ? 'high' : 'auto'}
+            decoding="async"
+          />
+        </picture>
+        <div class="absolute inset-0 -z-10 bg-linear-to-t from-brand-950 via-brand-950/80 to-brand-950/20 sm:bg-linear-to-r sm:from-brand-950/95 sm:via-brand-950/70 sm:to-transparent" aria-hidden="true"></div>
+
+        <div class="slide-copy container-x pb-32 pt-24 sm:py-24">
+          <p class="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-accent-300">
+            <span class="flex size-10 items-center justify-center rounded-xl bg-accent-600 text-white shadow-md shadow-black/20"><Icon name={s.icon} class="size-6" /></span>
+            {String(i + 1).padStart(2, '0')} · {company.founded}'dan beri
+          </p>
+          <h2 class="mt-4 max-w-3xl text-4xl font-bold leading-tight sm:text-6xl">{s.title}</h2>
+          <p class="mt-5 max-w-xl text-lg text-brand-100 sm:text-xl">{s.summary}</p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href={`/hizmetler/#${s.id}`} class="btn-primary">Ayrıntılar <Icon name="arrow" class="size-5" /></a>
+            <a href="/iletisim/#teklif-formu" class="btn-light">Teklif Al</a>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="absolute inset-x-0 bottom-0 z-10">
+    <div class="container-x flex items-center gap-3 pb-6 md:pr-48">
+      <ol class="grid flex-1 grid-cols-4 gap-2 sm:gap-4">
+        {slides.map((s, i) => (
+          <li>
+            <button type="button" class="slider-tab group block w-full text-left" data-index={i} aria-label={`${i + 1}. slayt: ${s.title}`} aria-current={i === 0 ? 'true' : undefined}>
+              <span class="block h-1 overflow-hidden rounded-full bg-white/25"><span class="tab-progress block h-full w-0 bg-accent-500"></span></span>
+              <span class="mt-2 hidden truncate text-sm font-semibold text-white/70 group-hover:text-white group-aria-[current=true]:text-white md:block">{s.title}</span>
+            </button>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .slide { opacity: 0; transition: opacity 0.9s ease; }
+  .slide[data-active] { opacity: 1; z-index: 1; }
+  .slide-media img { transform: scale(1.08); transition: transform 5s ease-out; }
+  .slide[data-active] .slide-media img { transform: scale(1); }
+  .slide-copy > * { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .slide[data-active] .slide-copy > * { opacity: 1; transform: none; }
+  .slide[data-active] .slide-copy > :nth-child(2) { transition-delay: 0.1s; }
+  .slide[data-active] .slide-copy > :nth-child(3) { transition-delay: 0.2s; }
+  .slide[data-active] .slide-copy > :nth-child(4) { transition-delay: 0.3s; }
+  .slider-tab[aria-current='true'] .tab-progress { width: 100%; transition: width var(--slide-ms, 5000ms) linear; }
+  .hero-slider[data-paused] .slider-tab[aria-current='true'] .tab-progress { transition: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .slide, .slide-media img, .slide-copy > * { transition: none !important; transform: none !important; }
+    .slider-tab[aria-current='true'] .tab-progress { transition: none; }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('.hero-slider');
+  if (root) {
+    const slides = [...root.querySelectorAll<HTMLElement>('.slide')];
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('.slider-tab')];
+    const DURATION = 5000;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let current = 0;
+    let timer: number | undefined;
+    const userPaused = reduced; // hareket azaltılmışsa otomatik geçiş kapalı
+    let hoverPaused = false;
+
+    root.style.setProperty('--slide-ms', `${DURATION}ms`);
+
+    const show = (next: number) => {
+      current = (next + slides.length) % slides.length;
+      slides.forEach((s, i) => {
+        const on = i === current;
+        s.toggleAttribute('data-active', on);
+        s.toggleAttribute('inert', !on);
+        if (on) s.removeAttribute('aria-hidden'); else s.setAttribute('aria-hidden', 'true');
+      });
+      tabs.forEach((t, i) => {
+        // ilerleme çubuğu animasyonunu yeniden başlat
+        t.removeAttribute('aria-current');
+        if (i === current) { void t.offsetWidth; t.setAttribute('aria-current', 'true'); }
+      });
+      schedule();
+    };
+
+    const schedule = () => {
+      window.clearTimeout(timer);
+      const paused = userPaused || hoverPaused;
+      root.toggleAttribute('data-paused', paused);
+      if (!paused) timer = window.setTimeout(() => show(current + 1), DURATION);
+    };
+
+    tabs.forEach((t) => t.addEventListener('click', () => show(Number(t.dataset.index))));
+    // Fotoğrafa tıklayınca sonraki slayt (bağlantı ve düğmeler hariç)
+    root.querySelectorAll<HTMLElement>('.slide').forEach((s) => s.addEventListener('click', (e) => {
+      if ((e.target as Element).closest('a, button')) return;
+      show(current + 1);
+    }));
+
+    // Fare üzerindeyken veya klavye odağı içerideyken durakla (WCAG 2.2.2)
+    root.addEventListener('mouseenter', () => { hoverPaused = true; schedule(); });
+    root.addEventListener('mouseleave', () => { hoverPaused = root.contains(document.activeElement); schedule(); });
+    root.addEventListener('focusin', () => { hoverPaused = true; schedule(); });
+    root.addEventListener('focusout', (e) => { if (!root.contains(e.relatedTarget as Node)) { hoverPaused = false; schedule(); } });
+    root.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') show(current + 1);
+      if (e.key === 'ArrowLeft') show(current - 1);
+    });
+
+    // Dokunmatik kaydırma
+    let startX = 0;
+    root.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+    root.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 50) show(current + (dx < 0 ? 1 : -1));
+    });
+
+    document.addEventListener('visibilitychange', () => { if (document.hidden) window.clearTimeout(timer); else schedule(); });
+
+    show(0);
+  }
+</script>

@@ -1,0 +1,71 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+import PageHero from '../components/PageHero.astro';
+import { company, services } from '../data/site';
+const field = 'mt-1 block w-full rounded-lg border border-slate-300 px-4 py-3 focus:border-brand-600';
+---
+<Layout title="İletişim ve Teklif" description="Axis Teknik iletişim bilgileri ve teklif formu. Velibaba Mah., Pendik / İstanbul. Tel: 0216 307 18 62.">
+  <PageHero eyebrow="İletişim" title="Bize ulaşın" lead="Teklif, keşif veya bakım talepleriniz için formu doldurun ya da doğrudan arayın." image="iletisim" />
+
+  <section class="container-x grid gap-12 py-16 lg:grid-cols-5">
+    <div class="space-y-6 lg:col-span-2">
+      <div class="flex gap-4"><span class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700"><Icon name="pin" /></span>
+        <div><h2 class="font-bold">Adres</h2><p class="text-slate-600">{company.address}</p>
+          <a href={company.mapUrl} target="_blank" rel="noopener" class="mt-1 inline-flex items-center gap-1 font-semibold text-brand-700">Yol tarifi al <Icon name="arrow" class="size-4" /></a></div></div>
+      <div class="flex gap-4"><span class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700"><Icon name="phone" /></span>
+        <div><h2 class="font-bold">Telefon</h2>
+          <p><a href={company.phone.href} class="text-brand-700 hover:underline">{company.phone.label}</a> <span class="text-slate-500">(santral)</span></p>
+          <p><a href={company.phone2.href} class="text-brand-700 hover:underline">{company.phone2.label}</a></p>
+          <p><a href={company.mobile.href} class="text-brand-700 hover:underline">{company.mobile.label}</a></p></div></div>
+      <div class="flex gap-4"><span class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700"><Icon name="mail" /></span>
+        <div><h2 class="font-bold">E-posta</h2><a href={`mailto:${company.email}`} class="text-brand-700 hover:underline">{company.email}</a></div></div>
+      <div class="flex gap-4"><span class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-whatsapp text-white"><Icon name="whatsapp" /></span>
+        <div><h2 class="font-bold">WhatsApp</h2><p class="text-slate-600">{company.whatsapp.label}</p>
+          <a href={company.whatsapp.href} target="_blank" rel="noopener" class="mt-1 inline-flex items-center gap-1 font-semibold text-whatsapp">WhatsApp ile yazın <Icon name="arrow" class="size-4" /></a></div></div>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 p-6 sm:p-8 lg:col-span-3">
+      <h2 id="teklif-formu" class="scroll-mt-32 md:scroll-mt-36 text-2xl font-bold">Teklif formu</h2>
+      <form id="form" method="post" action={company.formEndpoint || undefined} data-email={company.email} class="mt-6 grid gap-5 sm:grid-cols-2">
+        <label class="block">Ad Soyad *<input name="ad" required autocomplete="name" class={field} /></label>
+        <label class="block">Firma<input name="firma" autocomplete="organization" class={field} /></label>
+        <label class="block">Telefon *<input name="telefon" type="tel" required autocomplete="tel" class={field} /></label>
+        <label class="block">E-posta *<input name="eposta" type="email" required autocomplete="email" class={field} /></label>
+        <label class="block sm:col-span-2">İlgilendiğiniz hizmet
+          <select name="hizmet" class={field}>
+            {services.map((s) => <option>{s.title}</option>)}
+            <option>Bakım ve periyodik kontrol</option><option>Diğer</option>
+          </select></label>
+        <label class="block sm:col-span-2">Mesajınız *<textarea name="mesaj" rows="5" required class={field}></textarea></label>
+        <label class="flex gap-3 text-sm text-slate-600 sm:col-span-2"><input type="checkbox" name="kvkk" required class="mt-1 size-5" />
+          <span>Kişisel verilerimin talebime yanıt verilmesi amacıyla işlenmesine ilişkin aydınlatma metnini okudum.</span></label>
+        <div class="sm:col-span-2"><button class="btn-primary w-full sm:w-auto">Gönder</button>
+          <p id="durum" role="status" class="mt-3 text-sm"></p></div>
+      </form>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  const form = document.getElementById('form') as HTMLFormElement;
+  const status = document.getElementById('durum')!;
+
+  // Hizmetler sayfasından ?hizmet=... ile gelindiyse ilgili hizmeti seç
+  const wanted = new URLSearchParams(location.search).get('hizmet');
+  const select = form.elements.namedItem('hizmet') as HTMLSelectElement | null;
+  if (wanted && select && [...select.options].some((o) => o.value === wanted)) select.value = wanted;
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+    if (form.action && form.getAttribute('action')) {
+      const res = await fetch(form.action, { method: 'POST', body: data, headers: { Accept: 'application/json' } }).catch(() => null);
+      status.textContent = res?.ok ? 'Teşekkürler, mesajınız alındı. En kısa sürede dönüş yapacağız.' : 'Gönderilemedi. Lütfen bizi telefonla arayın.';
+      if (res?.ok) form.reset();
+      return;
+    }
+    const body = [...data.entries()].filter(([k]) => k !== 'kvkk').map(([k, v]) => `${k}: ${v}`).join('\n');
+    location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent('Teklif talebi - ' + data.get('hizmet'))}&body=${encodeURIComponent(body)}`;
+    status.textContent = 'E-posta uygulamanız açıldı; mesajı göndermeyi unutmayın.';
+  });
+</script>

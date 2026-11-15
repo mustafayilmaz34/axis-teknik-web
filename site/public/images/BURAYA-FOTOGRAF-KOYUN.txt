@@ -1,0 +1,11 @@
+Bu klasöre aşağıdaki adlarla fotoğraf koyun (.jpg, .webp veya .png). Konan fotoğraf siteye kendiliğinden gelir; olmayanın yerinde mavi zemin kalır.
+
+anasayfa.jpg     Ana sayfa başlığı      Önerilen arama: "electrical switchgear" / "industrial facility"
+hizmetler.jpg    Hizmetler sayfası      "cable tray" / "electrical panel wiring"
+referanslar.jpg  Referanslar sayfası    "factory interior" / "industrial plant"
+hakkimizda.jpg   Hakkımızda sayfası     "engineer at work" / "technician"
+iletisim.jpg     İletişim sayfası       "fire sprinkler" / "fire suppression"
+
+Kaynak: unsplash.com veya pexels.com (ücretsiz, ticari kullanıma açık). Yatay seçin, en az 1600 px genişlik.
+Dosya boyutunu squoosh.app ile 300 KB altına indirin.
+Ekledikten sonra "npm run dev" açıksa kapatıp yeniden başlatın.

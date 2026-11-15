@@ -1,0 +1,11 @@
+---
+import { heroStyle } from './heroImage';
+const { title, lead, eyebrow, image } = Astro.props;
+---
+<section class="hero-bg text-white" style={image ? heroStyle(image) : undefined}>
+  <div class="container-x py-16 sm:py-20">
+    {eyebrow && <p class="text-sm font-semibold uppercase tracking-wider text-accent-300">{eyebrow}</p>}
+    <h1 class="mt-2 max-w-3xl text-4xl font-bold sm:text-5xl">{title}</h1>
+    {lead && <p class="mt-4 max-w-2xl text-lg text-brand-100">{lead}</p>}
+  </div>
+</section>

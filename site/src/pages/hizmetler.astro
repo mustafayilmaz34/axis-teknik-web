@@ -1,0 +1,161 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+import PageHero from '../components/PageHero.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { services, fireSystems } from '../data/site';
+
+const fireIcons: Record<string, string> = { 'gazli-sondurme': 'gas', 'sulu-sondurme': 'water', 'kopuklu-sondurme': 'foam' };
+const pad = (n: number) => String(n).padStart(2, '0');
+const quoteHref = (title: string) => `/iletisim/?hizmet=${encodeURIComponent(title)}#teklif-formu`;
+---
+<Layout title="Hizmetler" description="Elektrik taahhüt, mekanik taahhüt, yangın algılama ve söndürme sistemleri, tasarım ve projelendirme hizmetleri.">
+  <PageHero eyebrow="Hizmetler" title="Tasarımdan bakıma, tek ekiple" lead="Elektrik, mekanik ve yangın sistemlerinde projelendirme, uygulama, devreye alma ve bakım." image="hizmetler" />
+
+  <script is:inline>document.documentElement.classList.add('js');</script>
+  <div class="bg-slate-50 pb-20">
+    <!-- Hizmet sekmeleri -->
+    <div id="sekmeler" class="sticky top-20 z-30 scroll-mt-20 border-b border-slate-200 bg-white/95 backdrop-blur md:top-24 md:scroll-mt-24">
+      <div role="tablist" aria-label="Hizmetler" class="no-scrollbar container-x grid auto-cols-[minmax(10.5rem,1fr)] grid-flow-col gap-2 overflow-x-auto py-3">
+        {services.map((s, i) => (
+          <a
+            href={`#${s.id}`}
+            role="tab"
+            id={`tab-${s.id}`}
+            aria-controls={s.id}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            tabindex={i === 0 ? 0 : -1}
+            data-target={s.id}
+            class="svc-tab flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-left transition hover:border-brand-400"
+          >
+            <span class="tab-icon flex size-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-700"><Icon name={s.icon} class="size-6" /></span>
+            <span>
+              <span class="tab-num block text-xs font-semibold tracking-wider text-slate-500">{pad(i + 1)}</span>
+              <span class="block font-heading font-bold leading-tight">{s.title}</span>
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <!-- Hizmet panelleri: her biri aynı düzende -->
+    {services.map((s, i) => {
+      const isFire = s.icon === 'fire';
+      return (
+        <section id={s.id} role="tabpanel" aria-labelledby={`tab-${s.id}`} class="svc-panel container-x scroll-mt-44 pt-10 md:scroll-mt-52 lg:pt-14" data-hidden={i === 0 ? undefined : ''}>
+          <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+            <!-- 1. Başlık + fotoğraf -->
+            <div class="grid lg:grid-cols-2">
+              <div class="flex flex-col justify-center p-6 sm:p-10 lg:p-12">
+                <span class:list={['flex size-14 items-center justify-center rounded-2xl text-white shadow-md', isFire ? 'bg-linear-to-br from-accent-500 to-accent-700' : 'bg-linear-to-br from-brand-500 to-brand-800']}><Icon name={s.icon} class="size-8" /></span>
+                <h2 class="mt-6 font-heading text-3xl font-bold tracking-tight sm:text-4xl">{s.title}</h2>
+                <p class="mt-4 text-lg text-slate-600">{s.summary}</p>
+                <div class="mt-8">
+                  <a href={quoteHref(s.title)} class="btn-primary">Bu hizmet için teklif al <Icon name="arrow" class="size-5" /></a>
+                </div>
+              </div>
+              <img src={s.image.src} alt={s.image.alt} width="1200" height="800" loading={i === 0 ? 'eager' : 'lazy'} decoding="async" class="aspect-[16/10] size-full object-cover lg:aspect-auto" />
+            </div>
+
+            <!-- 2. Kapsam -->
+            <div class="border-t border-slate-200 p-6 sm:p-10 lg:p-12">
+              <h3 class="eyebrow">Kapsam</h3>
+              <div class:list={['mt-6 grid gap-5', s.sections.length > 1 && 'md:grid-cols-2']}>
+                {s.sections.map((sec) => (
+                  <div class="rounded-2xl bg-slate-50 p-6">
+                    <h4 class="font-heading text-lg font-bold">{sec.title}</h4>
+                    <ul class:list={['mt-4 grid gap-x-8 gap-y-2.5', s.sections.length === 1 && 'sm:grid-cols-2 lg:grid-cols-3']}>
+                      {sec.items.map((it) => (
+                        <li class="flex gap-3 text-slate-700"><Icon name="checkCircle" class={`mt-0.5 size-5 shrink-0 ${isFire ? 'text-accent-600' : 'text-brand-600'}`} /><span>{it}</span></li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <!-- 3. Yangın: söndürme sistemleri -->
+            {s.id === 'yangin-sistemleri' && (
+              <div class="border-t border-slate-200 p-6 sm:p-10 lg:p-12">
+                <h3 class="eyebrow">Söndürme sistemleri</h3>
+                <div class="mt-6 grid gap-5 lg:grid-cols-3">
+                  {fireSystems.map((f) => (
+                    <article id={f.id} class="scroll-mt-44 rounded-2xl border border-slate-200 p-6 md:scroll-mt-52">
+                      <div class="flex items-center gap-3">
+                        <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-accent-50 text-accent-700"><Icon name={fireIcons[f.id] ?? 'fire'} class="size-6" /></span>
+                        <h4 class="font-heading text-lg font-bold leading-tight">{f.title}</h4>
+                      </div>
+                      <div class="mt-4 space-y-3 text-slate-600">
+                        {f.text.map((p) => <p>{p}</p>)}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      );
+    })}
+  </div>
+  <CtaBand />
+</Layout>
+
+<style>
+  @reference "../styles/global.css";
+  .svc-tab[aria-selected='true'] { @apply border-brand-700 bg-brand-700 text-white shadow-md; }
+  .svc-tab[aria-selected='true'] .tab-icon { @apply bg-white/15 text-white; }
+  .svc-tab[aria-selected='true'] .tab-num { @apply text-brand-200; }
+  /* JS yoksa tüm hizmetler alt alta görünür; JS varsa yalnızca seçili olan */
+  :global(.js) .svc-panel[data-hidden] { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+</style>
+<script>
+  const tabs = [...document.querySelectorAll<HTMLAnchorElement>('.svc-tab')];
+  const panels = [...document.querySelectorAll<HTMLElement>('.svc-panel')];
+  const bar = document.getElementById('sekmeler')!;
+
+  const select = (id: string, focus = false) => {
+    tabs.forEach((t) => {
+      const on = t.dataset.target === id;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      if (on) {
+        t.parentElement!.scrollTo({ left: t.offsetLeft - 16, behavior: 'smooth' });
+        if (focus) t.focus();
+      }
+    });
+    panels.forEach((p) => p.toggleAttribute('data-hidden', p.id !== id));
+  };
+
+  // Adres çubuğundaki #hizmet (veya #gazli-sondurme gibi alt başlık) ilgili sekmeyi açar
+  const openFromHash = (scroll: boolean) => {
+    const target = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    const panel = target?.closest<HTMLElement>('.svc-panel');
+    if (!panel) return;
+    select(panel.id);
+    if (scroll) requestAnimationFrame(() => (target === panel ? bar : target!).scrollIntoView({ block: 'start' }));
+  };
+
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', (e) => {
+      e.preventDefault();
+      select(t.dataset.target!);
+      history.replaceState(null, '', `#${t.dataset.target}`);
+      if (bar.getBoundingClientRect().top < 0 || window.scrollY > bar.offsetTop) bar.scrollIntoView({ block: 'start' });
+    });
+    // Klavye: ← → Home End (WAI-ARIA sekme deseni)
+    t.addEventListener('keydown', (e) => {
+      const map: Record<string, number> = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 };
+      if (!(e.key in map)) return;
+      e.preventDefault();
+      const next = tabs[(map[e.key] + tabs.length) % tabs.length];
+      select(next.dataset.target!, true);
+      history.replaceState(null, '', `#${next.dataset.target}`);
+    });
+  });
+
+  window.addEventListener('hashchange', () => openFromHash(true));
+  openFromHash(true);
+</script>
